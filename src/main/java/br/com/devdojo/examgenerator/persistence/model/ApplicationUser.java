@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 @Entity
 public class ApplicationUser extends AbstractEntity {
 
+
     @NotEmpty(message = "The field username cannot be empty")
     @Column(unique = true)
     private String username;
@@ -39,4 +40,15 @@ public class ApplicationUser extends AbstractEntity {
     public void setProfessor(Professor professor) {
         this.professor = professor;
     }
+
+    public ApplicationUser() {
+    }
+
+    public ApplicationUser(ApplicationUser applicationUser) {
+        this.username = applicationUser.username;
+        this.password = applicationUser.password;
+        this.professor = applicationUser.professor;
+    }
+
+
 }

@@ -4,6 +4,7 @@ import br.com.devdojo.examgenerator.persistence.model.ApplicationUser;
 import br.com.devdojo.examgenerator.persistence.repository.ApplicationUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,21 +26,30 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ApplicationUser aplicationUser = loadApplicationUserByUserName(username);
-        return
+        ApplicationUser applicationUser = loadApplicationUserByUserName(username);
+        return new CustomUserDetails(applicationUser);
 
     }
 
-    public ApplicationUser loadApplicationUserByUserName(String username){
-         return Optional.ofNullable(applicationUserRepository.findByUsername(username))
-                 .orElseThrow(() -> new UsernameNotFoundException("ApplicationUser not found"));
+    public ApplicationUser loadApplicationUserByUserName(String username) {
+        return Optional.ofNullable(applicationUserRepository.findByUsername(username))
+                .orElseThrow(() -> new UsernameNotFoundException("ApplicationUser not found"));
     }
 
-    private final static  class CustomUserDetails extends ApplicationUserRepository implements UserDetails{
+    private final static class CustomUserDetails extends ApplicationUser implements UserDetails {
+
+        private CustomUserDetails(ApplicationUser applicationUser) {
+            super(applicationUser);
+        }
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
-            List
+
+            List<GrantedAuthority> authorityListProfessor =
+                    AuthorityUtils.createAuthorityList("ROLE_PROFESSOR");
+            List<GrantedAuthority> authorityListStudent =
+                    AuthorityUtils.createAuthorityList("ROLE_STUDENT");
+            return this.getProfessor() != null ? authorityListProfessor : authorityListStudent;
         }
 
         @Override
